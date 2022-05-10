@@ -1,0 +1,135 @@
+{
+  "name": "glob-reader",
+  "description": "Iterative file and text processing",
+  "version": "0.0.0-development",
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": "Beni Arisandi (https://stilearning.com)",
+  "repository": "https://github.com/bent10/glob-reader.git",
+  "license": "MIT",
+  "keywords": [
+    "expand",
+    "files",
+    "filesystem",
+    "filter",
+    "find",
+    "fnmatch",
+    "fs",
+    "glob",
+    "globbing",
+    "globs",
+    "match",
+    "matcher",
+    "minimatch",
+    "multi",
+    "multiple",
+    "paths",
+    "pattern",
+    "patterns",
+    "traverse",
+    "util",
+    "utility",
+    "wildcard",
+    "wildcards",
+    "promise",
+    "generator"
+  ],
+  "engines": {
+    "node": ">=12"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "readme.md",
+    "license"
+  ],
+  "scripts": {
+    "start": "npm run build && doogu watch",
+    "lint": "doogu lint --types",
+    "build": "doogu build --types",
+    "test": "ava --verbose",
+    "coverage": "c8 -r lcov -r text npm test"
+  },
+  "dependencies": {
+    "globby": "13.1.1",
+    "vfile": "5.3.2",
+    "vfile-is": "2.0.0",
+    "vfile-matter": "3.0.1",
+    "vfile-rename": "2.0.1",
+    "vfile-reporter": "7.0.4"
+  },
+  "devDependencies": {
+    "ava": "4.2.0",
+    "c8": "7.11.2",
+    "doogu": "1.2.0",
+    "source-map-js": "1.0.2",
+    "ts-node": "10.7.0"
+  },
+  "ava": {
+    "files": [
+      "test/**/*.test.ts"
+    ],
+    "extensions": {
+      "ts": "module"
+    },
+    "experiments": {
+      "configurableModuleFormat": true
+    },
+    "nodeArguments": [
+      "--loader=ts-node/esm",
+      "--no-warnings"
+    ],
+    "ignoredByWatcher": [
+      "{coverage,dist}/**",
+      "test/fixture/**/*"
+    ]
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
+  },
+  "release": {
+    "branches": [
+      "+([0-9])?(.{+([0-9]),x}).x",
+      "main",
+      "next",
+      "next-major",
+      {
+        "name": "beta",
+        "prerelease": true
+      },
+      {
+        "name": "alpha",
+        "prerelease": true
+      }
+    ],
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      [
+        "@semantic-release/changelog",
+        {
+          "changelogFile": "changelog.md"
+        }
+      ],
+      [
+        "@semantic-release/git",
+        {
+          "assets": [
+            "dist/**",
+            "changelog.md",
+            "readme.md",
+            "license"
+          ],
+          "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+        }
+      ],
+      "@semantic-release/github",
+      "@semantic-release/npm"
+    ]
+  }
+}
