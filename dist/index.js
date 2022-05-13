@@ -220,6 +220,7 @@ function* readGlobSync(patterns, options) {
   }
 }
 export {
+  File,
   readGlob,
   readGlobSync
 };

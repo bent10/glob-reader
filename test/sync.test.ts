@@ -2,8 +2,7 @@ import { dirname, extname, basename } from 'node:path'
 import { readFileSync, statSync } from 'node:fs'
 import { Buffer } from 'node:buffer'
 import anyTest, { TestFn } from 'ava'
-import { readGlobSync } from '../src/index.js'
-import { File } from '../src/File.js'
+import { readGlobSync, File } from '../dist/index.js'
 import { size } from './utils.js'
 
 const test = anyTest as TestFn<string[]>

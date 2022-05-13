@@ -28,5 +28,7 @@
  * @module
  */
 
+export * from './types.js'
 export { readGlob } from './async.js'
 export { readGlobSync } from './sync.js'
+export { File } from './File.js'

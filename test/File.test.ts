@@ -2,7 +2,7 @@ import { URL, fileURLToPath } from 'node:url'
 import fse from 'fs-extra'
 import test, { ThrowsExpectation } from 'ava'
 import { transform, transformSync } from 'esbuild'
-import { File } from '../src/File.js'
+import { File } from '../dist/index.js'
 import { cleanStack, tsCodeMock } from './utils.js'
 
 test.after.always('cleanup', async () => {

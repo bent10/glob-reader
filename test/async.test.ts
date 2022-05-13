@@ -2,8 +2,7 @@ import { dirname, extname, basename } from 'node:path'
 import { promises as fsp } from 'node:fs'
 import { Buffer } from 'node:buffer'
 import anyTest, { TestFn } from 'ava'
-import { readGlob } from '../src/index.js'
-import { File } from '../src/File.js'
+import { readGlob, File } from '../dist/index.js'
 import { size, fromAsync } from './utils.js'
 
 const test = anyTest as TestFn<string[]>
