@@ -16,6 +16,13 @@ export interface Options {
   encoding?: BufferEncoding
 
   /**
+   * An array of glob patterns to exclude matches.
+   *
+   * @default []
+   */
+  ignore?: string[]
+
+  /**
    * If `true`, it will not read the file contents and stat.
    *
    * @default false

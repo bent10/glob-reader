@@ -124,6 +124,14 @@ The buffer encoding to use when reading files.
 
 **`default`** Buffer
 
+#### ignore
+
+• `Optional` **ignore**: `string[]`
+
+An array of glob patterns to exclude matches.
+
+**`default`** []
+
 #### dry
 
 • `Optional` **dry**: `boolean`

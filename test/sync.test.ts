@@ -70,6 +70,17 @@ test('cwd', t => {
   }
 })
 
+test('ignore', t => {
+  const files = readGlobSync('src/*.ts', {
+    ignore: ['src/(a)?sync.ts']
+  })
+
+  t.plan(3)
+  for (const file of files) {
+    t.false(/a?sync/.test(<string>file.stem))
+  }
+})
+
 test('encoding', t => {
   const files = readGlobSync('src/*.ts', 'utf8')
   let i = 0

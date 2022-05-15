@@ -73,6 +73,17 @@ test('cwd', async t => {
   }
 })
 
+test('ignore', async t => {
+  const files = readGlob('src/*.ts', {
+    ignore: ['src/(a)?sync.ts']
+  })
+
+  t.plan(3)
+  for await (const file of files) {
+    t.false(/a?sync/.test(<string>file.stem))
+  }
+})
+
 test('encoding', async t => {
   const files = readGlob('src/*.ts', 'utf8')
   let i = 0

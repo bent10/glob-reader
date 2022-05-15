@@ -13,11 +13,13 @@ export async function* readGlob(
 ): AsyncGenerator<File> {
   const {
     encoding,
-    dry = false,
-    cwd = process.cwd()
+    cwd = process.cwd(),
+    ignore = [],
+    dry = false
   } = typeof options === 'string' ? { encoding: options } : options || {}
   const paths = globbyStream(patterns, {
     cwd,
+    ignore,
     onlyFiles: true
   })
 
