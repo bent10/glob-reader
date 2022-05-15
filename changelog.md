@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/bent10/glob-reader/compare/v1.1.0...v1.1.1) (2022-05-15)
+
+
+### Bug Fixes
+
+* **release:** git rm dist ([b020bdc](https://github.com/bent10/glob-reader/commit/b020bdc57aa66fe70f73887aeea8228abc649ffb))
+
 # [1.1.0](https://github.com/bent10/glob-reader/compare/v1.0.0...v1.1.0) (2022-05-13)
 
 
