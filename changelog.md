@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/bent10/glob-reader/compare/v1.1.1...v1.2.0) (2022-05-15)
+
+
+### Features
+
+* **options:** supports ignore option ([d7d74ef](https://github.com/bent10/glob-reader/commit/d7d74ef986baaa66e6ae0072371744431a0e55ff))
+
 ## [1.1.1](https://github.com/bent10/glob-reader/compare/v1.1.0...v1.1.1) (2022-05-15)
 
 
