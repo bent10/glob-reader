@@ -1,3 +1,15 @@
+# [1.3.0](https://github.com/bent10/glob-reader/compare/v1.2.0...v1.3.0) (2022-05-27)
+
+
+### Features
+
+* **glob:** add `concurrency` and `caseSensitiveMatch` options ([7cf07e4](https://github.com/bent10/glob-reader/commit/7cf07e41b7fec9ef07262908ad2aaa87a5b1bff3)), closes [#6](https://github.com/bent10/glob-reader/issues/6)
+
+
+### Performance Improvements
+
+* adds `fsStats` option to optionally retrieve `file.stat` ([6208f76](https://github.com/bent10/glob-reader/commit/6208f76815de621842b1d166e54f1861f8baf535)), closes [#7](https://github.com/bent10/glob-reader/issues/7)
+
 # [1.2.0](https://github.com/bent10/glob-reader/compare/v1.1.1...v1.2.0) (2022-05-15)
 
 
