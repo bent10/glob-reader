@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/bent10/glob-reader/compare/v1.3.0...v1.3.1) (2022-05-27)
+
+
+### Bug Fixes
+
+* tweaks options docs ([8c88906](https://github.com/bent10/glob-reader/commit/8c88906c62e1c8eb2d9e286e0c54c98a2576f461))
+
 # [1.3.0](https://github.com/bent10/glob-reader/compare/v1.2.0...v1.3.0) (2022-05-27)
 
 
