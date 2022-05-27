@@ -116,13 +116,24 @@ Base of path.
 
 **`default`** process.cwd()
 
-#### encoding
+#### concurrency
 
-• `Optional` **encoding**: `BufferEncoding`
+• `Optional` **concurrency**: `number`
 
-The buffer encoding to use when reading files.
+Specifies the maximum number of concurrent requests from a reader to read directories.
 
-**`default`** Buffer
+> The higher the number, the higher the performance and load on the file system.
+> If you want to read in quiet mode, set the value to a comfortable number or 1.
+
+**`default`** os.cpu().length
+
+#### caseSensitiveMatch
+
+• `Optional` **caseSensitiveMatch**: `boolean`
+
+Enables a [case-sensitive](https://en.wikipedia.org/wiki/Case_sensitivity) mode for matching files.
+
+**`default`** true
 
 #### ignore
 
@@ -132,11 +143,27 @@ An array of glob patterns to exclude matches.
 
 **`default`** []
 
+#### encoding
+
+• `Optional` **encoding**: `BufferEncoding`
+
+The buffer encoding to use when reading files.
+
+**`default`** Buffer
+
+#### fsStats
+
+• `Optional` **fsStats**: `boolean`
+
+If `true`, the file will provides information about the [`fs.Stats`](https://nodejs.org/api/fs.html#class-fsstats).
+
+**`default`** false
+
 #### dry
 
 • `Optional` **dry**: `boolean`
 
-If `true`, it will not read the file contents and stat.
+If `true`, it will not read the file contents and stat, also it will not prevent write and delete method.
 
 **`default`** false
 
@@ -214,7 +241,7 @@ Read more information about the file below.
 
 #### `file.dry`
 
-Status of dry run. If true, the file won't be written or deleted when calling `write|writeSync` or `delete|deleteSync` methods.
+Enable/disable `dry` run for specific file.
 
 ```js
 const analyze = readGlob('./src/*')
