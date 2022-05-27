@@ -25,6 +25,7 @@ export function* readGlobSync(
   const {
     encoding,
     dry = false,
+    fsStats = false,
     cwd = process.cwd(),
     ...globOptions
   } = typeof options === 'string' ? { encoding: options } : options || {}
@@ -35,7 +36,7 @@ export function* readGlobSync(
       ? []
       : [
           readFileSync(join(cwd, filepath), encoding),
-          statSync(join(cwd, filepath))
+          fsStats ? statSync(join(cwd, filepath)) : {}
         ]
 
     yield new File({ cwd, path: filepath, value, data: { stat }, dry })

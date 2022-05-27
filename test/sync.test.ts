@@ -23,11 +23,11 @@ test('no-opts', t => {
 
   for (const file of files) {
     const mockPath = t.context[i]
-    const [value, stat] = [readFileSync(mockPath, 'utf8'), statSync(mockPath)]
+    const value = readFileSync(mockPath, 'utf8')
     const bytes = Buffer.byteLength(value)
 
     t.is(file.cwd, process.cwd())
-    t.deepEqual(file.data, { matter: {}, stat })
+    t.deepEqual(file.data, { matter: {}, stat: {} })
     t.is(file.dry, false)
     t.deepEqual(file.history, [mockPath])
     t.deepEqual(file.messages, [])
@@ -96,8 +96,21 @@ test('encoding', t => {
   }
 })
 
+test('fsStats', async t => {
+  const files = readGlobSync('src/*.ts', { fsStats: true })
+  let i = 0
+
+  for await (const file of files) {
+    const mockPath = t.context[i]
+    t.deepEqual(file.data.stat, statSync(mockPath))
+
+    i++
+  }
+})
+
 test('dry run', t => {
   const files = readGlobSync('src/*.ts', {
+    fsStats: true, // should be ignored
     dry: true
   })
 

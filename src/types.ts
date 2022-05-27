@@ -1,5 +1,4 @@
 import type { Buffer } from 'node:buffer'
-import { type Options as GlobOptions } from 'globby'
 
 export interface Options {
   /**
@@ -39,6 +38,15 @@ export interface Options {
    * @default Buffer
    */
   encoding?: BufferEncoding
+
+  /**
+   * If `true`, the file will provides information about the [`fs.Stats`](https://nodejs.org/api/fs.html#class-fsstats).
+   *
+   * > **Note:** this option is ignored on dry mode.
+   *
+   * @default false
+   */
+  fsStats?: boolean
 
   /**
    * If `true`, it will not read the file contents and stat.

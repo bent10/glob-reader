@@ -14,6 +14,7 @@ export async function* readGlob(
   const {
     encoding,
     dry = false,
+    fsStats = false,
     cwd = process.cwd(),
     ...globOptions
   } = typeof options === 'string' ? { encoding: options } : options || {}
@@ -24,7 +25,7 @@ export async function* readGlob(
       ? []
       : await Promise.all([
           fsp.readFile(join(cwd, String(filepath)), encoding),
-          fsp.stat(join(cwd, String(filepath)))
+          fsStats ? fsp.stat(join(cwd, String(filepath))) : {}
         ])
 
     yield new File({ cwd, path: String(filepath), value, data: { stat }, dry })
