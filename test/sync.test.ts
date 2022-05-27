@@ -1,6 +1,7 @@
 import { dirname, extname, basename } from 'node:path'
 import { readFileSync, statSync } from 'node:fs'
 import { Buffer } from 'node:buffer'
+import { globbySync } from 'globby'
 import anyTest, { TestFn } from 'ava'
 import { readGlobSync, File } from '../dist/index.js'
 import { size } from './utils.js'
@@ -8,13 +9,9 @@ import { size } from './utils.js'
 const test = anyTest as TestFn<string[]>
 
 test.before(t => {
-  t.context = [
-    'src/File.ts',
-    'src/async.ts',
-    'src/index.ts',
-    'src/sync.ts',
-    'src/types.ts'
-  ]
+  t.context = globbySync('src/*.ts', {
+    onlyFiles: true
+  })
 })
 
 test('no-opts', t => {

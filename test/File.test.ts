@@ -1,3 +1,4 @@
+import { normalize } from 'node:path'
 import { URL, fileURLToPath } from 'node:url'
 import fse from 'fs-extra'
 import test, { ThrowsExpectation } from 'ava'
@@ -125,7 +126,7 @@ test('rename()', t => {
 
   file.rename({ extname: '.html', dirname: 'dist' })
 
-  t.is(file.path, 'dist/foo.html')
+  t.is(file.path, normalize('dist/foo.html'))
 })
 
 test('reporter()', t => {
@@ -134,13 +135,9 @@ test('reporter()', t => {
   file.info('some message')
   file.message('some warning!', { line: 2, column: 4 })
 
-  t.is(
+  t.regex(
     file.reporter({ color: false }),
-    `test/fixture/foo.js
-  1:1  info     some message
-  2:4  warning  some warning!
-
-2 messages (⚠ 1 warning)`
+    /test\/fixture\/foo.js\n  1:1  info     some message\n  2:4  warning  some warning\!/
   )
 })
 
@@ -181,7 +178,7 @@ test.serial('delete()', async t => {
   await t.throwsAsync(fse.access(file.path, fse.constants.F_OK), {
     instanceOf: Error,
     code: 'ENOENT',
-    message: "ENOENT: no such file or directory, access './test/fixture/foo.md'"
+    message: /ENOENT: no such file or directory, access/
   })
 
   // should error if no path is provided
