@@ -1,4 +1,5 @@
 import type { Buffer } from 'node:buffer'
+import { type Options as GlobOptions } from 'globby'
 
 export interface Options {
   /**
@@ -9,11 +10,21 @@ export interface Options {
   cwd?: string
 
   /**
-   * The buffer encoding to use when reading files.
+   * Specifies the maximum number of concurrent requests from a reader to read directories.
    *
-   * @default Buffer
+   * > The higher the number, the higher the performance and load on the file system.
+   * > If you want to read in quiet mode, set the value to a comfortable number or 1.
+   *
+   * @default os.cpu().length
    */
-  encoding?: BufferEncoding
+  concurrency?: number
+
+  /**
+   * Enables a [case-sensitive](https://en.wikipedia.org/wiki/Case_sensitivity) mode for matching files.
+   *
+   * @default true
+   */
+  caseSensitiveMatch?: boolean
 
   /**
    * An array of glob patterns to exclude matches.
@@ -21,6 +32,13 @@ export interface Options {
    * @default []
    */
   ignore?: string[]
+
+  /**
+   * The buffer encoding to use when reading files.
+   *
+   * @default Buffer
+   */
+  encoding?: BufferEncoding
 
   /**
    * If `true`, it will not read the file contents and stat.

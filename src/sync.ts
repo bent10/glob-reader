@@ -24,15 +24,11 @@ export function* readGlobSync(
 ): Generator<File> {
   const {
     encoding,
+    dry = false,
     cwd = process.cwd(),
-    ignore = [],
-    dry = false
+    ...globOptions
   } = typeof options === 'string' ? { encoding: options } : options || {}
-  const paths = globbySync(patterns, {
-    cwd,
-    ignore,
-    onlyFiles: true
-  })
+  const paths = globbySync(patterns, { ...globOptions, cwd, onlyFiles: true })
 
   for (const filepath of paths) {
     const [value = '', stat = {}] = dry
