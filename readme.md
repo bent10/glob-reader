@@ -163,7 +163,7 @@ If `true`, the file will provides information about the [`fs.Stats`](https://nod
 
 • `Optional` **dry**: `boolean`
 
-If `true`, it will not read the file contents and stat, also it will not prevent write and delete method.
+If `true`, it will not read the file contents and stat, also it will prevent write and delete method.
 
 **`default`** false
 
