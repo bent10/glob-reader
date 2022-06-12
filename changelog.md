@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/bent10/glob-reader/compare/v1.4.0...v1.4.1) (2022-06-12)
+
+
+### Bug Fixes
+
+* **deps:** update dependency globby to ^13.1.2 ([b1ad46a](https://github.com/bent10/glob-reader/commit/b1ad46a19db49bb2423dbe2dce393370712eef2e))
+
 # [1.4.0](https://github.com/bent10/glob-reader/compare/v1.3.2...v1.4.0) (2022-06-12)
 
 
