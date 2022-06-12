@@ -48,9 +48,8 @@ export class File extends VFile {
    */
   constructor(options?: FileCompatible | File) {
     super(options)
+    let stripMatter = false
 
-    // strip frontmatter from file
-    matter(this, { strip: true })
     if (
       typeof options === 'string' ||
       Buffer.isBuffer(options) ||
@@ -59,7 +58,14 @@ export class File extends VFile {
       // done in super()
     } else if (typeof options === 'object') {
       this.dry = !!options.dry
+
+      if (!(options instanceof File)) {
+        stripMatter = !!options.stripMatter
+      }
     }
+
+    // strip frontmatter from file
+    matter(this, { strip: stripMatter })
   }
 
   /**

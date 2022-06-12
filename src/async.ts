@@ -13,6 +13,7 @@ export async function* readGlob(
 ): AsyncGenerator<File> {
   const {
     encoding,
+    stripMatter = false,
     dry = false,
     fsStats = false,
     cwd = process.cwd(),
@@ -28,6 +29,13 @@ export async function* readGlob(
           fsStats ? fsp.stat(join(cwd, String(filepath))) : {}
         ])
 
-    yield new File({ cwd, path: String(filepath), value, data: { stat }, dry })
+    yield new File({
+      cwd,
+      path: String(filepath),
+      value,
+      data: { stat },
+      stripMatter,
+      dry
+    })
   }
 }

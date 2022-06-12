@@ -24,6 +24,7 @@ export function* readGlobSync(
 ): Generator<File> {
   const {
     encoding,
+    stripMatter = false,
     dry = false,
     fsStats = false,
     cwd = process.cwd(),
@@ -39,6 +40,13 @@ export function* readGlobSync(
           fsStats ? statSync(join(cwd, filepath)) : {}
         ]
 
-    yield new File({ cwd, path: filepath, value, data: { stat }, dry })
+    yield new File({
+      cwd,
+      path: filepath,
+      value,
+      data: { stat },
+      stripMatter,
+      dry
+    })
   }
 }

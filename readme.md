@@ -151,6 +151,14 @@ The buffer encoding to use when reading files.
 
 **`default`** Buffer
 
+#### stripMatter
+
+• `Optional` **stripMatter**: `boolean`
+
+If `true`, it will removes the YAML front matter from the `file.value`.
+
+**`default`** false
+
 #### fsStats
 
 • `Optional` **fsStats**: `boolean`

@@ -93,6 +93,28 @@ test('encoding', async t => {
   }
 })
 
+test('stripMatter', async t => {
+  const unstriped = readGlob('test/fixtures/*.html', {
+    encoding: 'utf8'
+  })
+
+  for await (const file of unstriped) {
+    t.is(
+      file.value,
+      '---\ntitle: Hello, world!\n---\n\n<p>Some more text</p>\n'
+    )
+  }
+
+  const striped = readGlob('test/fixtures/*.html', {
+    encoding: 'utf8',
+    stripMatter: true
+  })
+
+  for await (const file of striped) {
+    t.is(file.value, '\n<p>Some more text</p>\n')
+  }
+})
+
 test('fsStats', async t => {
   const files = readGlob('src/*.ts', { fsStats: true })
   let i = 0

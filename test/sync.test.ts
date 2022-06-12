@@ -93,11 +93,33 @@ test('encoding', t => {
   }
 })
 
-test('fsStats', async t => {
+test('stripMatter', t => {
+  const unstriped = readGlobSync('test/fixtures/*.html', {
+    encoding: 'utf8'
+  })
+
+  for (const file of unstriped) {
+    t.is(
+      file.value,
+      '---\ntitle: Hello, world!\n---\n\n<p>Some more text</p>\n'
+    )
+  }
+
+  const striped = readGlobSync('test/fixtures/*.html', {
+    encoding: 'utf8',
+    stripMatter: true
+  })
+
+  for (const file of striped) {
+    t.is(file.value, '\n<p>Some more text</p>\n')
+  }
+})
+
+test('fsStats', t => {
   const files = readGlobSync('src/*.ts', { fsStats: true })
   let i = 0
 
-  for await (const file of files) {
+  for (const file of files) {
     const mockPath = t.context[i]
     t.deepEqual(file.data.stat, statSync(mockPath))
 

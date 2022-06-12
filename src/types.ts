@@ -40,6 +40,13 @@ export interface Options {
   encoding?: BufferEncoding
 
   /**
+   * If `true`, it will removes the YAML front matter from the file.
+   *
+   * @default false
+   */
+  stripMatter?: boolean
+
+  /**
    * If `true`, the file will provides information about the [`fs.Stats`](https://nodejs.org/api/fs.html#class-fsstats).
    *
    * > **Note:** this option is ignored on dry mode.

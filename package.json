@@ -84,7 +84,7 @@
     ],
     "ignoredByWatcher": [
       "{coverage,dist}/**",
-      "test/fixture/**/*"
+      "test/fixtures/**/*"
     ]
   },
   "config": {
