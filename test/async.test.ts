@@ -1,3 +1,4 @@
+import { EOL } from 'node:os'
 import { dirname, extname, basename } from 'node:path'
 import { promises as fsp } from 'node:fs'
 import { Buffer } from 'node:buffer'
@@ -101,7 +102,7 @@ test('stripMatter', async t => {
   for await (const file of unstriped) {
     t.is(
       file.value,
-      '---\ntitle: Hello, world!\n---\n\n<p>Some more text</p>\n'
+      `---${EOL}title: Hello, world!${EOL}---${EOL}${EOL}<p>Some more text</p>${EOL}`
     )
   }
 
@@ -111,7 +112,7 @@ test('stripMatter', async t => {
   })
 
   for await (const file of striped) {
-    t.is(file.value, '\n<p>Some more text</p>\n')
+    t.is(file.value, `${EOL}<p>Some more text</p>${EOL}`)
   }
 })
 
