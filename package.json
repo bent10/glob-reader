@@ -54,19 +54,19 @@
     "coverage": "c8 -r lcov -r text npm test"
   },
   "dependencies": {
-    "globby": "13.1.1",
-    "vfile": "5.3.3",
-    "vfile-is": "2.0.0",
-    "vfile-matter": "3.0.1",
-    "vfile-rename": "2.0.1",
-    "vfile-reporter": "7.0.4"
+    "globby": "^13.1.1",
+    "vfile": "^5.3.3",
+    "vfile-is": "^2.0.0",
+    "vfile-matter": "^3.0.1",
+    "vfile-rename": "^2.0.1",
+    "vfile-reporter": "^7.0.4"
   },
   "devDependencies": {
-    "ava": "4.3.0",
-    "c8": "7.11.3",
-    "doogu": "1.2.1",
-    "source-map-js": "1.0.2",
-    "ts-node": "10.8.1"
+    "ava": "^4.3.0",
+    "c8": "^7.11.3",
+    "doogu": "^1.2.1",
+    "source-map-js": "^1.0.2",
+    "ts-node": "^10.8.1"
   },
   "ava": {
     "files": [
