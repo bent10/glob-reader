@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/bent10/glob-reader/compare/v1.3.2...v1.4.0) (2022-06-12)
+
+
+### Features
+
+* support `stripMatter` option - resolves [#13](https://github.com/bent10/glob-reader/issues/13) ([20ecfa6](https://github.com/bent10/glob-reader/commit/20ecfa69d97423c8943530491404ada40a94f495))
+
 ## [1.3.2](https://github.com/bent10/glob-reader/compare/v1.3.1...v1.3.2) (2022-06-11)
 
 
