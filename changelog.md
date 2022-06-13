@@ -1,3 +1,10 @@
+## [1.4.2](https://github.com/bent10/glob-reader/compare/v1.4.1...v1.4.2) (2022-06-13)
+
+
+### Bug Fixes
+
+* **deps:** update dependency vfile-matter to v4 ([17628d7](https://github.com/bent10/glob-reader/commit/17628d771f4783cff4d67382868be2e7a10e658a))
+
 ## [1.4.1](https://github.com/bent10/glob-reader/compare/v1.4.0...v1.4.1) (2022-06-12)
 
 
