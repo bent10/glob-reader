@@ -55,7 +55,7 @@
   },
   "dependencies": {
     "globby": "^13.1.2",
-    "vfile": "^5.3.3",
+    "vfile": "^5.3.4",
     "vfile-is": "^2.0.0",
     "vfile-matter": "^4.0.0",
     "vfile-rename": "^2.0.1",
