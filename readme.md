@@ -14,16 +14,16 @@ This package is pure ESM, please read the
 [esm-package](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c).
 
 ```js
-import { readGlob } from 'glob-reader'
+import { readGlobSync } from 'glob-reader'
 
-const files = readGlob('./src/**/*.md')
-for await (const file of files) {
+const files = readGlobSync('./src/**/*.md')
+for (const file of files) {
   // processing file here (i.e. transforms markdown to html)
   console.log(file.toString())
   // rename file
   file.rename({ extname: '.html', dirname: './dist' })
   // writes .html file to ./dist directory
-  await file.write()
+  file.writeSync()
 }
 ```
 
@@ -199,7 +199,7 @@ for await (const file of analyze) {
   // current name (including extension) of file
   file.basename // => 'foo.md'
   // name (without extension) of file
-  file.stem // => '.md'
+  file.stem // => 'foo'
   // extension (with dot) of file
   file.extname // => '.md'
   // path to parent directory of file
@@ -348,6 +348,15 @@ Returns diagnostic information about the file.
 ```
 
 </details>
+
+## Benchmarks
+
+```bash
+Running glob-reader...
+readGlob x 2,034 ops/sec ±3.28% (75 runs sampled)
+readGlobSync x 6,599 ops/sec ±2.48% (79 runs sampled)
+Fastest: readGlobSync
+```
 
 ## Contributing
 

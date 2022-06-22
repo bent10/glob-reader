@@ -54,7 +54,7 @@
     "coverage": "c8 -r lcov -r text npm test"
   },
   "dependencies": {
-    "globby": "^13.1.2",
+    "fast-glob": "^3.2.11",
     "vfile": "^5.3.4",
     "vfile-is": "^2.0.0",
     "vfile-matter": "^4.0.0",

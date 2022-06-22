@@ -13,15 +13,15 @@
  * [esm-package](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c).
  *
  * ```js
- * import { readGlob } from 'glob-reader'
+ * import { readGlobSync } from 'glob-reader'
  *
- * const files = readGlob('./src/**\/*.{md,mdx,liquid}')
- * for await (const file of files) {
+ * const files = readGlobSync('./src/**\/*.md')
+ * for (const file of files) {
  *   // processing file here...
  *   console.log(file)
  *
  *   file.rename({ extname: '.html', dirname: 'dist' })
- *   await file.write() // writes to ./dist directory
+ *   file.writeSync() // writes to ./dist directory
  * }
  * ```
  *

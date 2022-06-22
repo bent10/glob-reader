@@ -2,7 +2,7 @@ import { EOL } from 'node:os'
 import { dirname, extname, basename } from 'node:path'
 import { readFileSync, statSync } from 'node:fs'
 import { Buffer } from 'node:buffer'
-import { globbySync } from 'globby'
+import fastGlob from 'fast-glob'
 import anyTest, { TestFn } from 'ava'
 import { readGlobSync, File } from '../dist/index.js'
 import { size } from './utils.js'
@@ -10,7 +10,7 @@ import { size } from './utils.js'
 const test = anyTest as TestFn<string[]>
 
 test.before(t => {
-  t.context = globbySync('src/*.ts', {
+  t.context = fastGlob.sync('src/*.ts', {
     onlyFiles: true
   })
 })

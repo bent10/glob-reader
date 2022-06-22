@@ -1,14 +1,24 @@
 import { join } from 'node:path'
 import { promises as fsp } from 'node:fs'
-import { globbyStream } from 'globby'
+import fastGlob from 'fast-glob'
 import { File } from './File.js'
 import { Options } from './types.js'
 
 /**
  * Asynchronously expands glob patterns for iterative file and text processing.
+ *
+ * ```js
+ * import { readGlob } from 'glob-reader'
+ *
+ * const files = readGlob('./src/**\/*.md')
+ * for await (const file of files) {
+ *   // processing file here...
+ *   console.log(file)
+ * }
+ * ```
  */
 export async function* readGlob(
-  patterns: string | readonly string[],
+  patterns: string | string[],
   options?: BufferEncoding | Options
 ): AsyncGenerator<File> {
   const {
@@ -19,7 +29,11 @@ export async function* readGlob(
     cwd = process.cwd(),
     ...globOptions
   } = typeof options === 'string' ? { encoding: options } : options || {}
-  const paths = globbyStream(patterns, { ...globOptions, cwd, onlyFiles: true })
+  const paths = fastGlob.stream(patterns, {
+    ...globOptions,
+    cwd,
+    onlyFiles: true
+  })
 
   for await (const filepath of paths) {
     const [value = '', stat = {}] = dry
