@@ -91,7 +91,7 @@ for (const file of files) {
   file.rename({ extname: '.css', dirname: './dist' })
 
   // writes .css and .css.map file to ./dist directory
-  await file.writeSync()
+  file.writeSync()
 }
 ```
 
