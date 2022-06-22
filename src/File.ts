@@ -153,10 +153,10 @@ export class File extends VFile {
     if (this.dry) return
 
     try {
+      // creates directory if it doesn't exist
+      this.dirname &&
+        (await fsp.mkdir(join(this.cwd, this.dirname), { recursive: true }))
       await Promise.all([
-        // creates directory if it doesn't exist
-        this.dirname &&
-          fsp.mkdir(join(this.cwd, this.dirname), { recursive: true }),
         fsp.writeFile(join(this.cwd, this.path), this.toString()),
         this.#writeMap(),
         this.#writeMin()
