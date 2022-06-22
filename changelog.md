@@ -1,3 +1,15 @@
+## [1.4.4](https://github.com/bent10/glob-reader/compare/v1.4.3...v1.4.4) (2022-06-22)
+
+
+### Bug Fixes
+
+* `file.write()` error ([93dcd61](https://github.com/bent10/glob-reader/commit/93dcd6121e50ff3df29b76cb5887d09d996c3b45))
+
+
+### Performance Improvements
+
+* replace `globby` with `fast-glob` ([95197c6](https://github.com/bent10/glob-reader/commit/95197c68ca8e7136ba7495472ef10a895ea352e6))
+
 ## [1.4.3](https://github.com/bent10/glob-reader/compare/v1.4.2...v1.4.3) (2022-06-14)
 
 
