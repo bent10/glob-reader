@@ -36,10 +36,10 @@
     "generator"
   ],
   "engines": {
-    "node": ">=v12.22.12"
+    "node": "^12.22 || ^14.17 || >=16"
   },
   "type": "module",
-  "main": "dist/index.js",
+  "exports": "./dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
     "dist",
@@ -47,9 +47,10 @@
     "license"
   ],
   "scripts": {
-    "start": "npm run build && doogu watch",
-    "lint": "doogu lint --types",
-    "build": "doogu build --types",
+    "start": "npm run build && npm run watch",
+    "watch": "chokidar \"src/*.ts\" -c \"npm run build\"",
+    "lint": "tsc --noEmit && eslint \"./src\" --ext \".ts\" --cache --cache-location \"node_modules/.cache/.eslintcache\"",
+    "build": "swc \"./src\" -d \"dist\" && tsc -d --emitDeclarationOnly",
     "test": "ava --verbose",
     "coverage": "c8 -r lcov -r text npm test"
   },
@@ -62,12 +63,18 @@
     "vfile-reporter": "^7.0.4"
   },
   "devDependencies": {
-    "ava": "^4.3.0",
-    "c8": "^7.11.3",
-    "doogu": "^1.2.1",
-    "source-map-js": "^1.0.2",
-    "ts-node": "^10.8.1"
+    "doogu": "^2.1.5",
+    "source-map-js": "^1.0.2"
   },
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
+  },
+  "eslintConfig": {
+    "extends": "./node_modules/doogu/config/eslint.json"
+  },
+  "prettier": "doogu/config/prettier.json",
   "ava": {
     "files": [
       "test/**/*.test.ts"
@@ -75,22 +82,14 @@
     "extensions": {
       "ts": "module"
     },
-    "experiments": {
-      "configurableModuleFormat": true
-    },
     "nodeArguments": [
       "--loader=ts-node/esm",
       "--no-warnings"
     ],
     "ignoredByWatcher": [
       "{coverage,dist}/**",
-      "test/fixtures/**/*"
+      "test/{fixtures,.cache}/**/*"
     ]
-  },
-  "config": {
-    "commitizen": {
-      "path": "cz-conventional-changelog"
-    }
   },
   "release": {
     "branches": [
