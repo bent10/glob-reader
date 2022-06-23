@@ -1,3 +1,10 @@
+## [1.4.5](https://github.com/bent10/glob-reader/compare/v1.4.4...v1.4.5) (2022-06-23)
+
+
+### Bug Fixes
+
+* **doogu:** refactor ([7454fb7](https://github.com/bent10/glob-reader/commit/7454fb76a9aae88d4840191fc91a1a66453bbf2a))
+
 ## [1.4.4](https://github.com/bent10/glob-reader/compare/v1.4.3...v1.4.4) (2022-06-22)
 
 
