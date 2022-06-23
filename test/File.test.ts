@@ -6,10 +6,6 @@ import { transform, transformSync } from '@swc/core'
 import { File } from '../dist/index.js'
 import { cleanStack, tsCodeMock } from './utils.js'
 
-test.after.always('cleanup', async () => {
-  // await fsp.unlink('./test/.cache')
-})
-
 test('allow missing options', async t => {
   const file = new File()
 
@@ -130,19 +126,19 @@ test('rename()', t => {
 })
 
 test('reporter()', t => {
-  const file = new File({ path: 'test/.cache/foo.js' })
+  const file = new File({ path: 'test/fixtures/foo.js' })
 
   file.info('some message')
   file.message('some warning!', { line: 2, column: 4 })
 
   t.regex(
     file.reporter({ color: false }),
-    /test\/.cache\/foo.js\n  1:1  info     some message\n  2:4  warning  some warning\!/
+    /test\/fixtures\/foo.js\n  1:1  info     some message\n  2:4  warning  some warning\!/
   )
 })
 
 test('handle fail()', async t => {
-  const file = new File({ path: 'test/.cache/foo.js' })
+  const file = new File({ path: 'test/fixtures/foo.js' })
 
   try {
     file.fail(new ReferenceError('foo is not defined'))
@@ -150,7 +146,7 @@ test('handle fail()', async t => {
 
   t.is(
     cleanStack(file.reporter({ color: false }), 3),
-    `test/.cache/foo.js
+    `test/fixtures/foo.js
   1:1  error  ReferenceError: foo is not defined
     at File.test.ts:1:1`
   )
@@ -158,7 +154,7 @@ test('handle fail()', async t => {
 
 test.serial('write()', async t => {
   const file = new File('foo\nbar\nbaz')
-  file.path = './test/.cache/foo.md'
+  file.path = './test/fixtures/foo.md'
   await file.write()
 
   await t.notThrowsAsync(fsp.access(file.path, constants.F_OK))
@@ -172,7 +168,7 @@ test.serial('write()', async t => {
 })
 
 test.serial('delete()', async t => {
-  const file = new File({ path: './test/.cache/foo.md' })
+  const file = new File({ path: './test/fixtures/foo.md' })
   await file.delete()
 
   await t.throwsAsync(fsp.access(file.path, constants.F_OK), {
@@ -191,7 +187,7 @@ test.serial('delete()', async t => {
 
 test.serial('writeSync()', t => {
   const file = new File('foo\nbar\nbaz')
-  file.path = './test/.cache/bar.md'
+  file.path = './test/fixtures/bar.md'
   file.writeSync()
 
   t.notThrows(() => accessSync(file.path, constants.F_OK))
@@ -205,13 +201,14 @@ test.serial('writeSync()', t => {
 })
 
 test.serial('deleteSync()', t => {
-  const file = new File({ path: './test/.cache/bar.md' })
+  const file = new File({ path: './test/fixtures/bar.md' })
   file.deleteSync()
 
   t.throws(() => accessSync(file.path, constants.F_OK), {
     instanceOf: Error,
     code: 'ENOENT',
-    message: "ENOENT: no such file or directory, access './test/.cache/bar.md'"
+    message:
+      "ENOENT: no such file or directory, access './test/fixtures/bar.md'"
   })
 
   // should error if no path is provided
@@ -224,7 +221,7 @@ test.serial('deleteSync()', t => {
 
 test.serial('write() with .map and .min', async t => {
   const file = new File({
-    path: './test/.cache/baz.ts',
+    path: './test/fixtures/baz.ts',
     value: tsCodeMock
   })
 
@@ -259,28 +256,32 @@ test.serial('write() with .map and .min', async t => {
 
   await file.write()
 
-  await t.notThrowsAsync(fsp.access('./test/.cache/baz.js', constants.F_OK))
-  await t.notThrowsAsync(fsp.access('./test/.cache/baz.js.map', constants.F_OK))
-  await t.notThrowsAsync(fsp.access('./test/.cache/baz.min.js', constants.F_OK))
+  await t.notThrowsAsync(fsp.access('./test/fixtures/baz.js', constants.F_OK))
   await t.notThrowsAsync(
-    fsp.access('./test/.cache/baz.min.js.map', constants.F_OK)
+    fsp.access('./test/fixtures/baz.js.map', constants.F_OK)
+  )
+  await t.notThrowsAsync(
+    fsp.access('./test/fixtures/baz.min.js', constants.F_OK)
+  )
+  await t.notThrowsAsync(
+    fsp.access('./test/fixtures/baz.min.js.map', constants.F_OK)
   )
 
   t.is(file.value, await fsp.readFile(file.path, 'utf8'))
   t.is(
     JSON.stringify(file.map),
-    await fsp.readFile('./test/.cache/baz.js.map', 'utf8')
+    await fsp.readFile('./test/fixtures/baz.js.map', 'utf8')
   )
-  t.is(file.min.code, await fsp.readFile('./test/.cache/baz.min.js', 'utf8'))
+  t.is(file.min.code, await fsp.readFile('./test/fixtures/baz.min.js', 'utf8'))
   t.is(
     JSON.stringify(file.min.map),
-    await fsp.readFile('./test/.cache/baz.min.js.map', 'utf8')
+    await fsp.readFile('./test/fixtures/baz.min.js.map', 'utf8')
   )
 })
 
 test.serial('delete() with .map and .min', async t => {
   const file = new File({
-    path: './test/.cache/baz.ts',
+    path: './test/fixtures/baz.ts',
     value: tsCodeMock
   })
 
@@ -321,26 +322,26 @@ test.serial('delete() with .map and .min', async t => {
     message: /ENOENT: no such file or directory, access/
   }
   await t.throwsAsync(
-    fsp.access('./test/.cache/baz.js', constants.F_OK),
+    fsp.access('./test/fixtures/baz.js', constants.F_OK),
     expectend
   )
   await t.throwsAsync(
-    fsp.access('./test/.cache/baz.js.map', constants.F_OK),
+    fsp.access('./test/fixtures/baz.js.map', constants.F_OK),
     expectend
   )
   await t.throwsAsync(
-    fsp.access('./test/.cache/baz.min.js', constants.F_OK),
+    fsp.access('./test/fixtures/baz.min.js', constants.F_OK),
     expectend
   )
   await t.throwsAsync(
-    fsp.access('./test/.cache/baz.min.js.map', constants.F_OK),
+    fsp.access('./test/fixtures/baz.min.js.map', constants.F_OK),
     expectend
   )
 })
 
 test.serial('writeSync() with .map and .min', t => {
   const file = new File({
-    path: './test/.cache/baz.ts',
+    path: './test/fixtures/baz.ts',
     value: tsCodeMock
   })
 
@@ -375,26 +376,28 @@ test.serial('writeSync() with .map and .min', t => {
 
   file.writeSync()
 
-  t.notThrows(() => fsp.access('./test/.cache/baz.js', constants.F_OK))
-  t.notThrows(() => fsp.access('./test/.cache/baz.js.map', constants.F_OK))
-  t.notThrows(() => fsp.access('./test/.cache/baz.min.js', constants.F_OK))
-  t.notThrows(() => fsp.access('./test/.cache/baz.min.js.map', constants.F_OK))
+  t.notThrows(() => fsp.access('./test/fixtures/baz.js', constants.F_OK))
+  t.notThrows(() => fsp.access('./test/fixtures/baz.js.map', constants.F_OK))
+  t.notThrows(() => fsp.access('./test/fixtures/baz.min.js', constants.F_OK))
+  t.notThrows(() =>
+    fsp.access('./test/fixtures/baz.min.js.map', constants.F_OK)
+  )
 
   t.is(file.value, readFileSync(file.path, 'utf8'))
   t.is(
     JSON.stringify(file.map),
-    readFileSync('./test/.cache/baz.js.map', 'utf8')
+    readFileSync('./test/fixtures/baz.js.map', 'utf8')
   )
-  t.is(file.min.code, readFileSync('./test/.cache/baz.min.js', 'utf8'))
+  t.is(file.min.code, readFileSync('./test/fixtures/baz.min.js', 'utf8'))
   t.is(
     JSON.stringify(file.min.map),
-    readFileSync('./test/.cache/baz.min.js.map', 'utf8')
+    readFileSync('./test/fixtures/baz.min.js.map', 'utf8')
   )
 })
 
 test.serial('deleteSync() with .map and .min', t => {
   const file = new File({
-    path: './test/.cache/baz.ts',
+    path: './test/fixtures/baz.ts',
     value: tsCodeMock
   })
 
@@ -434,17 +437,20 @@ test.serial('deleteSync() with .map and .min', t => {
     code: 'ENOENT',
     message: /ENOENT: no such file or directory, access/
   }
-  t.throws(() => accessSync('./test/.cache/baz.js', constants.F_OK), expectend)
   t.throws(
-    () => accessSync('./test/.cache/baz.js.map', constants.F_OK),
+    () => accessSync('./test/fixtures/baz.js', constants.F_OK),
     expectend
   )
   t.throws(
-    () => accessSync('./test/.cache/baz.min.js', constants.F_OK),
+    () => accessSync('./test/fixtures/baz.js.map', constants.F_OK),
     expectend
   )
   t.throws(
-    () => accessSync('./test/.cache/baz.min.js.map', constants.F_OK),
+    () => accessSync('./test/fixtures/baz.min.js', constants.F_OK),
+    expectend
+  )
+  t.throws(
+    () => accessSync('./test/fixtures/baz.min.js.map', constants.F_OK),
     expectend
   )
 })
