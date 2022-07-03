@@ -37,7 +37,7 @@ export function size(bytes: number): string {
  * @param {number} max
  */
 export function cleanStack(stack: string, max: number) {
-  return (stack || '')
+  return stack
     .replace(new RegExp('\\(.+\\' + path.sep, 'g'), '(')
     .replace(/file:.+\//g, '')
     .replace(/\d+:\d+/g, '1:1')

@@ -1,470 +1,450 @@
-import { normalize } from 'node:path'
+import { normalize, dirname, basename, extname, join } from 'node:path'
 import { URL, fileURLToPath } from 'node:url'
 import { constants, accessSync, readFileSync, promises as fsp } from 'node:fs'
-import test, { ThrowsExpectation } from 'ava'
 import { transform, transformSync } from '@swc/core'
 import { File } from '../dist/index.js'
 import { cleanStack, tsCodeMock } from './utils.js'
 
-test('allow missing options', async t => {
-  const file = new File()
+describe('File options', () => {
+  it('allows undefined', async () => {
+    const file = new File()
 
-  t.deepEqual(file.history, [])
-  t.deepEqual(file.data, { matter: {} })
-  t.deepEqual(file.messages, [])
-  t.is(<unknown>file.value, undefined)
-  t.is(<unknown>file.path, undefined)
-  t.is(file.cwd, process.cwd())
-  t.is(file.dirname, undefined)
-  t.is(file.basename, undefined)
-  t.is(file.stem, undefined)
-  t.is(file.extname, undefined)
-  t.is(file.dry, false)
-  t.is(file.bytes, 0)
-  t.is(file.size, '0B')
+    expect(file.cwd).toBe(process.cwd())
+    expect(file.data).toHaveProperty('matter')
+    expect(file.data.matter).toEqual({})
+    expect(file.dry).toBe(false)
+    expect(file.history).toEqual([])
+    expect(file.messages).toEqual([])
+    expect(file.path).toBeUndefined()
+    expect(file.dirname).toBeUndefined()
+    expect(file.basename).toBeUndefined()
+    expect(file.stem).toBeUndefined()
+    expect(file.extname).toBeUndefined()
+    expect(file.value).toBeUndefined()
+    expect(file.bytes).toBe(0)
+    expect(file.size).toBe('0B')
 
-  t.notThrows(() => file.message(''))
+    expect(() => file.message('')).not.toThrow()
+    const errMsg = /The "path" argument must be of type string/
+    // => TypeError: The "path" argument must be of type string. Received undefined
+    await expect(file.write()).rejects.toThrow(errMsg)
+    await expect(file.delete()).rejects.toThrow(errMsg)
+    expect(() => file.writeSync()).toThrow(errMsg)
+    expect(() => file.deleteSync()).toThrow(errMsg)
+  })
 
-  // throws
-  const typeError: ThrowsExpectation = {
-    instanceOf: TypeError,
-    code: 'ERR_INVALID_ARG_TYPE',
-    message: /The "path" argument must be/
-  }
-  await t.throwsAsync(file.write(), typeError)
-  await t.throwsAsync(file.delete(), typeError)
-  t.throws(() => file.writeSync(), typeError)
-  t.throws(() => file.deleteSync(), typeError)
+  it('allows string', () => {
+    const file = new File('foo\nbar\nbaz')
+
+    expect(file.cwd).toBe(process.cwd())
+    expect(file.data).toHaveProperty('matter')
+    expect(file.data.matter).toEqual({})
+    expect(file.dry).toBe(false)
+    expect(file.history).toEqual([])
+    expect(file.messages).toEqual([])
+    expect(file.path).toBeUndefined()
+    expect(file.dirname).toBeUndefined()
+    expect(file.basename).toBeUndefined()
+    expect(file.stem).toBeUndefined()
+    expect(file.extname).toBeUndefined()
+    expect(file.value).toBe('foo\nbar\nbaz')
+    expect(file.bytes).toBe(11)
+    expect(file.size).toBe('11B')
+  })
+
+  it('allows URL', () => {
+    const url = new URL(import.meta.url)
+    const file = new File(url)
+    const filePath = fileURLToPath(url)
+
+    expect(file.cwd).toBe(process.cwd())
+    expect(file.data).toHaveProperty('matter')
+    expect(file.data.matter).toEqual({})
+    expect(file.dry).toBe(false)
+    expect(file.history).toEqual([filePath])
+    expect(file.messages).toEqual([])
+    expect(file.path).toBe(filePath)
+    expect(file.dirname).toBe(dirname(filePath))
+    expect(file.basename).toBe(basename(filePath))
+    expect(file.stem).toBe(basename(filePath, extname(filePath)))
+    expect(file.extname).toBe(extname(filePath))
+    expect(file.value).toBeUndefined()
+  })
+
+  it('allows object', () => {
+    const file = new File({ basename: 'foo.md', value: '#foo\nbar baz' })
+
+    expect(file.history).toEqual(['foo.md'])
+    expect(file.value).toBe('#foo\nbar baz')
+    expect(file.path).toBe('foo.md')
+    expect(file.dirname).toBe('.')
+    expect(file.basename).toBe('foo.md')
+    expect(file.stem).toBe('foo')
+    expect(file.extname).toBe('.md')
+  })
+
+  it('allows instanceof File', () => {
+    const left = new File({ path: 'left.md', value: '#foo\nbar baz' })
+    const right = new File(left)
+
+    expect(left).toEqual(right)
+    expect(left.path).toBe(right.path)
+    expect(left.value).toBe(right.value)
+  })
 })
 
-test('string options', t => {
-  const file = new File('foo\nbar\nbaz')
+describe('File', () => {
+  it('allows dry run', async () => {
+    const file = new File({
+      basename: 'foo.md',
+      value: '#foo\nbar baz',
+      dry: true
+    })
 
-  t.is(file.value, 'foo\nbar\nbaz')
-  t.is(file.bytes, 11)
-  t.is(file.size, '11B')
-})
+    expect(file.dry).toBe(true)
+    expect(await file.write()).toBeUndefined()
+    expect(await file.delete()).toBeUndefined()
+    expect(file.writeSync()).toBeUndefined()
+    expect(file.deleteSync()).toBeUndefined()
+  })
 
-test('url options', t => {
-  const url = new URL(import.meta.url)
-  const file = new File(url)
+  it('allows custom props', () => {
+    const page = { slug: 'foo', title: 'Foo', tags: ['foo', 'bar'] }
+    const file = new File({ anyProps: 'value', data: { page } })
 
-  t.is(file.path, fileURLToPath(url))
-})
+    expect(file.data).toEqual({ matter: {}, page })
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore - custom props are not defined in the interface, use `data` for custom fields instead
+    expect(file.anyProps).toBe('value')
+  })
 
-test('object options', t => {
-  const file = new File({ basename: 'foo.md', value: '#foo\nbar baz' })
+  it('cannot set `data.matter` directly', () => {
+    const matter = { slug: 'foo', title: 'Foo', tags: ['foo', 'bar'] }
+    const file = new File({ data: { matter } })
 
-  t.deepEqual(file.history, ['foo.md'])
-  t.is(file.value, '#foo\nbar baz')
-  t.is(file.path, 'foo.md')
-  t.is(file.dirname, '.')
-  t.is(file.basename, 'foo.md')
-  t.is(file.stem, 'foo')
-  t.is(file.extname, '.md')
-})
+    expect(file.data).not.toEqual({ matter })
+    expect(file.data).toEqual({ matter: {} })
+  })
 
-test('file options', t => {
-  const left = new File({ path: 'left.md', value: '#foo\nbar baz' })
-  const right = new File(left)
+  it('#toString()', () => {
+    expect(new File().toString()).toBe('')
+    expect(new File(Buffer.from('foo')).toString()).toBe('foo')
+    expect(new File(Buffer.from('foo')).toString('hex')).toBe('666f6f')
+  })
 
-  t.deepEqual(left, right)
-  t.is(left.path, right.path)
-  t.is(left.value, right.value)
-})
+  it('#is()', () => {
+    const file = new File({ path: 'path/to/foo.md', value: '#foo\nbar baz' })
 
-test('custom props', t => {
-  const page = { slug: 'foo', title: 'Foo', tags: ['foo', 'bar'] }
-  const file = new File({ anyProps: 'value', data: { page } })
+    expect(file.is(null)).toBe(true) // nothing to test
+    expect(file.is('.md')).toBe(true)
+    expect(file.is('**/*.md')).toBe(true)
+    expect(file.is('**/*.{js,md}')).toBe(true)
+    expect(file.is('**/*.js')).toBe(false)
+    expect(file.is('**/*.{js,mdx}')).toBe(false)
 
-  t.deepEqual(file.data, { matter: {}, page })
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore - custom props are not defined in the interface, use `data` for custom fields instead
-  t.is(file.anyProps, 'value')
-})
+    expect(file.is({ stem: 'foo' })).toBe(true)
+    expect(file.is({ stem: 'bar' })).toBe(false)
 
-test('can not set data.matter directly', t => {
-  const matter = { slug: 'foo', title: 'Foo', tags: ['foo', 'bar'] }
-  const file = new File({ data: { matter } })
+    expect(file.is({ missing: true })).toBe(false)
+    expect(file.is({ missing: false })).toBe(true)
 
-  t.notDeepEqual(file.data, { matter })
-  t.deepEqual(file.data, { matter: {} })
-})
+    expect(file.is({ stem: { prefix: 'f' } })).toBe(true)
+    expect(file.is({ stem: { suffix: 'oo' } })).toBe(true)
+  })
 
-test('toString()', t => {
-  t.is(new File().toString(), '')
-  t.is(new File(Buffer.from('foo')).toString(), 'foo')
-  t.is(new File(Buffer.from('foo')).toString('hex'), '666f6f')
-})
+  it('#rename()', () => {
+    const file = new File({ path: 'src/foo.md' })
 
-test('is()', t => {
-  const file = new File({ path: 'path/to/foo.md', value: '#foo\nbar baz' })
+    file.rename({ extname: '.html', dirname: 'dist' })
 
-  t.true(file.is(null)) // nothing to test
-  t.true(file.is('.md'))
-  t.true(file.is('**/*.md'))
-  t.true(file.is('**/*.{js,md}'))
-  t.false(file.is('**/*.js'))
-  t.false(file.is('**/*.{js,mdx}'))
+    expect(file.path).toBe(normalize('dist/foo.html'))
+  })
 
-  t.true(file.is({ stem: 'foo' }))
-  t.false(file.is({ stem: 'bar' }))
+  it('#reporter()', () => {
+    const file = new File({ path: 'test/fixtures/foo.js' })
 
-  t.false(file.is({ missing: true }))
-  t.true(file.is({ missing: false }))
+    file.info('some message')
+    file.message('some warning!', { line: 2, column: 4 })
 
-  t.true(file.is({ stem: { prefix: 'f' } }))
-  t.true(file.is({ stem: { suffix: 'oo' } }))
-})
+    expect(file.reporter({ color: false })).toMatch(
+      /test\/fixtures\/foo.js\n  1:1  info     some message\n  2:4  warning  some warning\!/
+    )
+  })
 
-test('rename()', t => {
-  const file = new File({ path: 'src/foo.md' })
+  it('#fail()', async () => {
+    const file = new File({ path: 'test/fixtures/foo.js' })
 
-  file.rename({ extname: '.html', dirname: 'dist' })
+    try {
+      file.fail(new ReferenceError('foo is not defined'))
+    } catch {}
 
-  t.is(file.path, normalize('dist/foo.html'))
-})
-
-test('reporter()', t => {
-  const file = new File({ path: 'test/fixtures/foo.js' })
-
-  file.info('some message')
-  file.message('some warning!', { line: 2, column: 4 })
-
-  t.regex(
-    file.reporter({ color: false }),
-    /test\/fixtures\/foo.js\n  1:1  info     some message\n  2:4  warning  some warning\!/
-  )
-})
-
-test('handle fail()', async t => {
-  const file = new File({ path: 'test/fixtures/foo.js' })
-
-  try {
-    file.fail(new ReferenceError('foo is not defined'))
-  } catch {}
-
-  t.is(
-    cleanStack(file.reporter({ color: false }), 3),
-    `test/fixtures/foo.js
+    expect(cleanStack(file.reporter({ color: false }), 3))
+      .toBe(`test/fixtures/foo.js
   1:1  error  ReferenceError: foo is not defined
-    at File.test.ts:1:1`
-  )
-})
-
-test.serial('write()', async t => {
-  const file = new File('foo\nbar\nbaz')
-  file.path = './test/fixtures/foo.md'
-  await file.write()
-
-  await t.notThrowsAsync(fsp.access(file.path, constants.F_OK))
-
-  // should error if no path is provided
-  await t.throwsAsync(new File().write(), {
-    instanceOf: TypeError,
-    code: 'ERR_INVALID_ARG_TYPE',
-    message: /The "path" argument must be of type string/
+    at Object.<anonymous> (File.test.ts:1:1)`)
   })
 })
 
-test.serial('delete()', async t => {
-  const file = new File({ path: './test/fixtures/foo.md' })
-  await file.delete()
+describe('File writes', () => {
+  it('async', async () => {
+    const file = new File({
+      path: './test/fixtures/foo.md',
+      value: 'foo\nbar\nbaz'
+    })
 
-  await t.throwsAsync(fsp.access(file.path, constants.F_OK), {
-    instanceOf: Error,
-    code: 'ENOENT',
-    message: /ENOENT: no such file or directory, access/
+    // write './test/fixtures/foo.md' file to disk
+    await file.write()
+    // make sure the file is created
+    await expect(fsp.access(file.path, constants.F_OK)).resolves.not.toThrow()
+
+    // should throws an error if no path is provided
+    // => TypeError: The "path" argument must be of type string. Received undefined
+    await expect(new File().write()).rejects.toThrow(
+      /The "path" argument must be of type string/
+    )
   })
 
-  // should error if no path is provided
-  await t.throwsAsync(new File().delete(), {
-    instanceOf: TypeError,
-    code: 'ERR_INVALID_ARG_TYPE',
-    message: /The "path" argument must be of type string/
-  })
-})
+  it('async with .map and .min', async () => {
+    const file = new File({
+      path: './test/fixtures/bar.ts',
+      value: tsCodeMock
+    })
 
-test.serial('writeSync()', t => {
-  const file = new File('foo\nbar\nbaz')
-  file.path = './test/fixtures/bar.md'
-  file.writeSync()
-
-  t.notThrows(() => accessSync(file.path, constants.F_OK))
-
-  // should error if no path is provided
-  t.throws(() => new File().writeSync(), {
-    instanceOf: TypeError,
-    code: 'ERR_INVALID_ARG_TYPE',
-    message: /The "path" argument must be of type string/
-  })
-})
-
-test.serial('deleteSync()', t => {
-  const file = new File({ path: './test/fixtures/bar.md' })
-  file.deleteSync()
-
-  t.throws(() => accessSync(file.path, constants.F_OK), {
-    instanceOf: Error,
-    code: 'ENOENT',
-    message:
-      "ENOENT: no such file or directory, access './test/fixtures/bar.md'"
-  })
-
-  // should error if no path is provided
-  t.throws(() => new File().deleteSync(), {
-    instanceOf: TypeError,
-    code: 'ERR_INVALID_ARG_TYPE',
-    message: /The "path" argument must be of type string/
-  })
-})
-
-test.serial('write() with .map and .min', async t => {
-  const file = new File({
-    path: './test/fixtures/baz.ts',
-    value: tsCodeMock
-  })
-
-  const { code, map } = await transform(file.toString(), {
-    sourceMaps: true,
-    filename: file.basename,
-    jsc: {
-      parser: {
-        syntax: 'typescript'
+    const { code, map } = await transform(file.toString(), {
+      sourceMaps: true,
+      filename: file.basename,
+      jsc: {
+        parser: {
+          syntax: 'typescript'
+        }
       }
-    }
-  })
+    })
 
-  file.value = `${code}\n//# sourceMappingURL=${file.path}.map\n`
-  file.map = JSON.parse(map!)
+    file.value = `${code}\n//# sourceMappingURL=${file.path}.map\n`
+    file.map = JSON.parse(map!)
 
-  file.rename({ extname: '.js' })
-  const minified = await transform(code, {
-    minify: true,
-    sourceMaps: true,
-    filename: file.basename,
-    jsc: {
-      parser: {
-        syntax: 'ecmascript'
+    file.rename({ extname: '.js' })
+    const minified = await transform(code, {
+      minify: true,
+      sourceMaps: true,
+      filename: file.basename,
+      jsc: {
+        parser: {
+          syntax: 'ecmascript'
+        }
       }
+    })
+    file.min = {
+      code: `${minified.code}\n//# sourceMappingURL=${file.path}.map\n`,
+      map: JSON.parse(minified.map!)
     }
+
+    // write 'bar.js', 'bar.js.map', 'bar.min.js', 'bar.min.js.map' to './test/fixtures'
+    await file.write()
+    // make sure all files are written
+    const destDir = file.dirname || ''
+    await expect(fsp.access(file.path, constants.F_OK)).resolves.not.toThrow()
+    await expect(
+      fsp.access(join(destDir, 'bar.js.map'), constants.F_OK)
+    ).resolves.not.toThrow()
+    await expect(
+      fsp.access(join(destDir, 'bar.min.js'), constants.F_OK)
+    ).resolves.not.toThrow()
+    await expect(
+      fsp.access(join(destDir, 'bar.min.js.map'), constants.F_OK)
+    ).resolves.not.toThrow()
+
+    expect(file.value).toBe(await fsp.readFile(file.path, 'utf8'))
+    expect(JSON.stringify(file.map)).toBe(
+      await fsp.readFile(join(destDir, 'bar.js.map'), 'utf8')
+    )
+    expect(file.min.code).toBe(
+      await fsp.readFile(join(destDir, 'bar.min.js'), 'utf8')
+    )
+    expect(JSON.stringify(file.min.map)).toBe(
+      await fsp.readFile(join(destDir, 'bar.min.js.map'), 'utf8')
+    )
   })
-  file.min = {
-    code: `${minified.code}\n//# sourceMappingURL=${file.path}.map\n`,
-    map: JSON.parse(minified.map!)
-  }
 
-  await file.write()
+  it('sync', () => {
+    const file = new File({
+      path: './test/fixtures/baz.md',
+      value: 'foo\nbar\nbaz'
+    })
 
-  await t.notThrowsAsync(fsp.access('./test/fixtures/baz.js', constants.F_OK))
-  await t.notThrowsAsync(
-    fsp.access('./test/fixtures/baz.js.map', constants.F_OK)
-  )
-  await t.notThrowsAsync(
-    fsp.access('./test/fixtures/baz.min.js', constants.F_OK)
-  )
-  await t.notThrowsAsync(
-    fsp.access('./test/fixtures/baz.min.js.map', constants.F_OK)
-  )
+    // write './test/fixtures/bar.md' file to disk
+    file.writeSync()
+    // make sure the file is created
+    expect(() => accessSync(file.path, constants.F_OK)).not.toThrow()
 
-  t.is(file.value, await fsp.readFile(file.path, 'utf8'))
-  t.is(
-    JSON.stringify(file.map),
-    await fsp.readFile('./test/fixtures/baz.js.map', 'utf8')
-  )
-  t.is(file.min.code, await fsp.readFile('./test/fixtures/baz.min.js', 'utf8'))
-  t.is(
-    JSON.stringify(file.min.map),
-    await fsp.readFile('./test/fixtures/baz.min.js.map', 'utf8')
-  )
+    // should throws an error if no path is provided
+    // => TypeError: The "path" argument must be of type string. Received undefined
+    expect(() => new File().writeSync()).toThrow(
+      /The "path" argument must be of type string/
+    )
+  })
+
+  it('sync with .map and .min', () => {
+    const file = new File({
+      path: './test/fixtures/qux.ts',
+      value: tsCodeMock
+    })
+
+    const { code, map } = transformSync(file.toString(), {
+      sourceMaps: true,
+      filename: file.basename,
+      jsc: {
+        parser: {
+          syntax: 'typescript'
+        }
+      }
+    })
+
+    file.value = `${code}\n//# sourceMappingURL=${file.path}.map\n`
+    file.map = JSON.parse(map!)
+
+    file.rename({ extname: '.js' })
+    const minified = transformSync(code, {
+      minify: true,
+      sourceMaps: true,
+      filename: file.basename,
+      jsc: {
+        parser: {
+          syntax: 'typescript'
+        }
+      }
+    })
+    file.min = {
+      code: `${minified.code}\n//# sourceMappingURL=${file.path}.map\n`,
+      map: JSON.parse(minified.map!)
+    }
+
+    // write 'qux.js', 'qux.js.map', 'qux.min.js', 'qux.min.js.map' to './test/fixtures'
+    file.writeSync()
+    // make sure all files are written
+    const destDir = file.dirname || ''
+    expect(() => fsp.access(file.path, constants.F_OK)).not.toThrow()
+    expect(() =>
+      fsp.access(join(destDir, 'qux.js.map'), constants.F_OK)
+    ).not.toThrow()
+    expect(() =>
+      fsp.access(join(destDir, 'qux.min.js'), constants.F_OK)
+    ).not.toThrow()
+    expect(() =>
+      fsp.access(join(destDir, 'qux.min.js.map'), constants.F_OK)
+    ).not.toThrow()
+
+    expect(file.value).toBe(readFileSync(file.path, 'utf8'))
+    expect(JSON.stringify(file.map)).toBe(
+      readFileSync(join(destDir, 'qux.js.map'), 'utf8')
+    )
+    expect(file.min.code).toBe(
+      readFileSync(join(destDir, 'qux.min.js'), 'utf8')
+    )
+    expect(JSON.stringify(file.min.map)).toBe(
+      readFileSync(join(destDir, 'qux.min.js.map'), 'utf8')
+    )
+  })
 })
 
-test.serial('delete() with .map and .min', async t => {
-  const file = new File({
-    path: './test/fixtures/baz.ts',
-    value: tsCodeMock
+describe('File deletes', () => {
+  it('async', async () => {
+    const file = new File({ path: './test/fixtures/foo.md' })
+
+    // deletes './test/fixtures/foo.md' file from disk
+    await file.delete()
+    // makes sure './test/fixtures/foo.md' file is deleted
+    await expect(fsp.access(file.path, constants.F_OK)).rejects.toThrow(
+      /ENOENT: no such file or directory, access/
+    )
+
+    // should throws an error if no path is provided
+    // TypeError: The "path" argument must be of type string. Received undefined
+    await expect(new File().delete()).rejects.toThrow(
+      /The "path" argument must be of type string/
+    )
   })
 
-  const { code, map } = await transform(file.toString(), {
-    sourceMaps: true,
-    filename: file.basename,
-    jsc: {
-      parser: {
-        syntax: 'typescript'
-      }
+  it('async with .map and .min', async () => {
+    const file = new File({
+      path: './test/fixtures/bar.ts',
+      value: tsCodeMock
+    })
+
+    file.value = `\n//# sourceMappingURL=${file.path}.map\n`
+    file.map = { version: 3, sources: [], names: [], mappings: '', file: '' }
+
+    file.rename({ extname: '.js' })
+    file.min = {
+      code: `\n//# sourceMappingURL=${file.path}.map\n`,
+      map: { version: '3', sources: [], names: [], mappings: '' }
     }
+
+    // deletes 'bar.js', 'bar.js.map', 'bar.min.js', 'bar.min.js.map' from './test/fixtures'
+    await file.delete()
+    // make sure all files are deleted
+    const destDir = file.dirname || ''
+    await expect(fsp.access(file.path, constants.F_OK)).rejects.toThrow(
+      /ENOENT: no such file or directory, access/
+    )
+    await expect(
+      fsp.access(join(destDir, 'baz.js.map'), constants.F_OK)
+    ).rejects.toThrow(/ENOENT: no such file or directory, access/)
+    await expect(
+      fsp.access(join(destDir, 'baz.min.js'), constants.F_OK)
+    ).rejects.toThrow(/ENOENT: no such file or directory, access/)
+    await expect(
+      fsp.access(join(destDir, 'baz.min.js.map'), constants.F_OK)
+    ).rejects.toThrow(/ENOENT: no such file or directory, access/)
   })
 
-  file.value = `${code}\n//# sourceMappingURL=${file.path}.map\n`
-  file.map = JSON.parse(map!)
+  it('sync', () => {
+    const file = new File({ path: './test/fixtures/baz.md' })
 
-  file.rename({ extname: '.js' })
-  const minified = await transform(code, {
-    minify: true,
-    sourceMaps: true,
-    filename: file.basename,
-    jsc: {
-      parser: {
-        syntax: 'typescript'
-      }
+    // deletes './test/fixtures/baz.md' file from disk
+    file.deleteSync()
+    // makes sure './test/fixtures/baz.md' file is deleted
+    expect(() => accessSync(file.path, constants.F_OK)).toThrowError(
+      /ENOENT: no such file or directory, access/
+    )
+
+    // should throws an error if no path is provided
+    // TypeError: The "path" argument must be of type string. Received undefined
+    expect(() => new File().deleteSync()).toThrowError(
+      /The "path" argument must be of type string/
+    )
+  })
+
+  it('sync with .map and .min', () => {
+    const file = new File({
+      path: './test/fixtures/qux.ts',
+      value: tsCodeMock
+    })
+
+    file.value = `\n//# sourceMappingURL=${file.path}.map\n`
+    file.map = { version: 3, sources: [], names: [], mappings: '', file: '' }
+
+    file.rename({ extname: '.js' })
+    file.min = {
+      code: `\n//# sourceMappingURL=${file.path}.map\n`,
+      map: { version: '3', sources: [], names: [], mappings: '' }
     }
+
+    // deletes 'qux.js', 'qux.js.map', 'qux.min.js', 'qux.min.js.map' from './test/fixtures'
+    file.deleteSync()
+    // make sure all files are deleted
+    const destDir = file.dirname || ''
+    expect(fsp.access(file.path, constants.F_OK)).rejects.toThrow(
+      /ENOENT: no such file or directory, access/
+    )
+    expect(
+      fsp.access(join(destDir, 'baz.js.map'), constants.F_OK)
+    ).rejects.toThrow(/ENOENT: no such file or directory, access/)
+    expect(
+      fsp.access(join(destDir, 'baz.min.js'), constants.F_OK)
+    ).rejects.toThrow(/ENOENT: no such file or directory, access/)
+    expect(
+      fsp.access(join(destDir, 'baz.min.js.map'), constants.F_OK)
+    ).rejects.toThrow(/ENOENT: no such file or directory, access/)
   })
-  file.min = {
-    code: `${minified.code}\n//# sourceMappingURL=${file.path}.map\n`,
-    map: JSON.parse(minified.map!)
-  }
-
-  await file.delete()
-
-  const expectend = {
-    instanceOf: Error,
-    code: 'ENOENT',
-    message: /ENOENT: no such file or directory, access/
-  }
-  await t.throwsAsync(
-    fsp.access('./test/fixtures/baz.js', constants.F_OK),
-    expectend
-  )
-  await t.throwsAsync(
-    fsp.access('./test/fixtures/baz.js.map', constants.F_OK),
-    expectend
-  )
-  await t.throwsAsync(
-    fsp.access('./test/fixtures/baz.min.js', constants.F_OK),
-    expectend
-  )
-  await t.throwsAsync(
-    fsp.access('./test/fixtures/baz.min.js.map', constants.F_OK),
-    expectend
-  )
-})
-
-test.serial('writeSync() with .map and .min', t => {
-  const file = new File({
-    path: './test/fixtures/baz.ts',
-    value: tsCodeMock
-  })
-
-  const { code, map } = transformSync(file.toString(), {
-    sourceMaps: true,
-    filename: file.basename,
-    jsc: {
-      parser: {
-        syntax: 'typescript'
-      }
-    }
-  })
-
-  file.value = `${code}\n//# sourceMappingURL=${file.path}.map\n`
-  file.map = JSON.parse(map!)
-
-  file.rename({ extname: '.js' })
-  const minified = transformSync(code, {
-    minify: true,
-    sourceMaps: true,
-    filename: file.basename,
-    jsc: {
-      parser: {
-        syntax: 'typescript'
-      }
-    }
-  })
-  file.min = {
-    code: `${minified.code}\n//# sourceMappingURL=${file.path}.map\n`,
-    map: JSON.parse(minified.map!)
-  }
-
-  file.writeSync()
-
-  t.notThrows(() => fsp.access('./test/fixtures/baz.js', constants.F_OK))
-  t.notThrows(() => fsp.access('./test/fixtures/baz.js.map', constants.F_OK))
-  t.notThrows(() => fsp.access('./test/fixtures/baz.min.js', constants.F_OK))
-  t.notThrows(() =>
-    fsp.access('./test/fixtures/baz.min.js.map', constants.F_OK)
-  )
-
-  t.is(file.value, readFileSync(file.path, 'utf8'))
-  t.is(
-    JSON.stringify(file.map),
-    readFileSync('./test/fixtures/baz.js.map', 'utf8')
-  )
-  t.is(file.min.code, readFileSync('./test/fixtures/baz.min.js', 'utf8'))
-  t.is(
-    JSON.stringify(file.min.map),
-    readFileSync('./test/fixtures/baz.min.js.map', 'utf8')
-  )
-})
-
-test.serial('deleteSync() with .map and .min', t => {
-  const file = new File({
-    path: './test/fixtures/baz.ts',
-    value: tsCodeMock
-  })
-
-  const { code, map } = transformSync(file.toString(), {
-    sourceMaps: true,
-    filename: file.basename,
-    jsc: {
-      parser: {
-        syntax: 'typescript'
-      }
-    }
-  })
-
-  file.value = `${code}\n//# sourceMappingURL=${file.path}.map\n`
-  file.map = JSON.parse(map!)
-
-  file.rename({ extname: '.js' })
-  const minified = transformSync(code, {
-    minify: true,
-    sourceMaps: true,
-    filename: file.basename,
-    jsc: {
-      parser: {
-        syntax: 'typescript'
-      }
-    }
-  })
-  file.min = {
-    code: `${minified.code}\n//# sourceMappingURL=${file.path}.map\n`,
-    map: JSON.parse(minified.map!)
-  }
-
-  file.deleteSync()
-
-  const expectend: ThrowsExpectation = {
-    instanceOf: Error,
-    code: 'ENOENT',
-    message: /ENOENT: no such file or directory, access/
-  }
-  t.throws(
-    () => accessSync('./test/fixtures/baz.js', constants.F_OK),
-    expectend
-  )
-  t.throws(
-    () => accessSync('./test/fixtures/baz.js.map', constants.F_OK),
-    expectend
-  )
-  t.throws(
-    () => accessSync('./test/fixtures/baz.min.js', constants.F_OK),
-    expectend
-  )
-  t.throws(
-    () => accessSync('./test/fixtures/baz.min.js.map', constants.F_OK),
-    expectend
-  )
-})
-
-test('dry run', async t => {
-  const file = new File({
-    basename: 'foo.md',
-    value: '#foo\nbar baz',
-    dry: true
-  })
-
-  t.true(file.dry)
-  t.is(await file.write(), undefined)
-  t.is(await file.delete(), undefined)
-  t.is(file.writeSync(), undefined)
-  t.is(file.deleteSync(), undefined)
 })

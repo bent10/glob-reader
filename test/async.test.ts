@@ -3,105 +3,99 @@ import { dirname, extname, basename } from 'node:path'
 import { promises as fsp } from 'node:fs'
 import { Buffer } from 'node:buffer'
 import fastGlob from 'fast-glob'
-import anyTest, { TestFn } from 'ava'
 import { readGlob, File } from '../dist/index.js'
 import { size, fromAsync } from './utils.js'
 
-const test = anyTest as TestFn<string[]>
-
-test.before(t => {
-  t.context = fastGlob.sync('src/*.ts', {
-    onlyFiles: true
-  })
+const mockPaths = fastGlob.sync('src/*.ts', {
+  onlyFiles: true
 })
 
-test('no-opts', async t => {
+test('no-opts', async () => {
   const files = readGlob('src/*.ts')
   let i = 0
 
   for await (const file of files) {
-    const mockPath = t.context[i]
+    const mockPath = mockPaths[i]
     const value = await fsp.readFile(mockPath, 'utf8')
     const bytes = Buffer.byteLength(value)
 
-    t.is(file.cwd, process.cwd())
-    t.deepEqual(file.data, { matter: {}, stat: {} })
-    t.is(file.dry, false)
-    t.deepEqual(file.history, [mockPath])
-    t.deepEqual(file.messages, [])
+    expect(file.cwd).toBe(process.cwd())
+    expect(file.data).toEqual({ matter: {}, stat: {} })
+    expect(file.dry).toBe(false)
+    expect(file.history).toEqual([mockPath])
+    expect(file.messages).toEqual([])
 
-    t.true(Buffer.isBuffer(file.value))
-    t.deepEqual(file.value, Buffer.from(value))
-    t.is(String(file.value), value)
-    t.is(file.toString(), value)
+    expect(Buffer.isBuffer(file.value)).toBe(true)
+    expect(file.value).toEqual(Buffer.from(value))
+    expect(String(file.value)).toBe(value)
+    expect(file.toString()).toBe(value)
 
-    t.is(file.path, mockPath)
-    t.is(file.dirname, dirname(mockPath))
-    t.is(file.basename, basename(mockPath))
-    t.is(file.extname, extname(mockPath))
-    t.is(file.stem, basename(mockPath, extname(mockPath)))
-    t.is(file.bytes, bytes)
-    t.is(file.size, size(bytes))
+    expect(file.path).toBe(mockPath)
+    expect(file.dirname).toBe(dirname(mockPath))
+    expect(file.basename).toBe(basename(mockPath))
+    expect(file.extname).toBe(extname(mockPath))
+    expect(file.stem).toBe(basename(mockPath, extname(mockPath)))
+    expect(file.bytes).toBe(bytes)
+    expect(file.size).toBe(size(bytes))
 
     i++
   }
 })
 
-test('cwd', async t => {
+test('cwd', async () => {
   const files = readGlob('*.ts', {
     cwd: 'src'
   })
   let i = 0
 
   for await (const file of files) {
-    const mockPath = t.context[i].replace('src/', '')
+    const mockPath = mockPaths[i].replace('src/', '')
 
-    t.is(file.cwd, 'src')
-    t.deepEqual(file.history, [mockPath])
-    t.is(file.path, mockPath)
-    t.is(file.dirname, dirname(mockPath))
-    t.is(file.basename, basename(mockPath))
-    t.is(file.extname, extname(mockPath))
-    t.is(file.stem, basename(mockPath, extname(mockPath)))
+    expect(file.cwd).toBe('src')
+    expect(file.history).toEqual([mockPath])
+    expect(file.path).toBe(mockPath)
+    expect(file.dirname).toBe(dirname(mockPath))
+    expect(file.basename).toBe(basename(mockPath))
+    expect(file.extname).toBe(extname(mockPath))
+    expect(file.stem).toBe(basename(mockPath, extname(mockPath)))
 
     i++
   }
 })
 
-test('ignore', async t => {
+test('ignore', async () => {
   const files = readGlob('src/*.ts', {
     ignore: ['src/(a)?sync.ts']
   })
 
-  t.plan(3)
+  expect.assertions(3)
   for await (const file of files) {
-    t.false(/a?sync/.test(<string>file.stem))
+    expect(/a?sync/.test(<string>file.stem)).toBe(false)
   }
 })
 
-test('encoding', async t => {
+test('encoding', async () => {
   const files = readGlob('src/*.ts', 'utf8')
   let i = 0
 
   for await (const file of files) {
-    const value = await fsp.readFile(t.context[i], 'utf8')
+    const value = await fsp.readFile(mockPaths[i], 'utf8')
 
-    t.false(Buffer.isBuffer(file.value))
-    t.true(typeof file.value === 'string')
-    t.is(file.value, value)
+    expect(Buffer.isBuffer(file.value)).toBe(false)
+    expect(typeof file.value === 'string').toBe(true)
+    expect(file.value).toBe(value)
 
     i++
   }
 })
 
-test('stripMatter', async t => {
+test('stripMatter', async () => {
   const unstriped = readGlob('test/fixtures/*.html', {
     encoding: 'utf8'
   })
 
   for await (const file of unstriped) {
-    t.is(
-      file.value,
+    expect(file.value).toBe(
       `---${EOL}title: Hello, world!${EOL}---${EOL}${EOL}<p>Some more text</p>${EOL}`
     )
   }
@@ -112,48 +106,48 @@ test('stripMatter', async t => {
   })
 
   for await (const file of striped) {
-    t.is(file.value, `${EOL}<p>Some more text</p>${EOL}`)
+    expect(file.value).toBe(`${EOL}<p>Some more text</p>${EOL}`)
   }
 })
 
-test('fsStats', async t => {
+test('fsStats', async () => {
   const files = readGlob('src/*.ts', { fsStats: true })
   let i = 0
 
   for await (const file of files) {
-    const mockPath = t.context[i]
-    t.deepEqual(file.data.stat, await fsp.stat(mockPath))
+    const mockPath = mockPaths[i]
+    expect(file.data.stat).toEqual(await fsp.stat(mockPath))
 
     i++
   }
 })
 
-test('dry run', async t => {
+test('dry run', async () => {
   const files = readGlob('src/*.ts', {
     fsStats: true, // should be ignored
     dry: true
   })
 
   for await (const file of files) {
-    t.deepEqual(file.data, { matter: {}, stat: {} })
-    t.true(file.dry)
-    t.is(file.value, '')
-    t.is(file.bytes, 0)
-    t.is(file.size, '0B')
+    expect(file.data).toEqual({ matter: {}, stat: {} })
+    expect(file.dry).toBe(true)
+    expect(file.value).toBe('')
+    expect(file.bytes).toBe(0)
+    expect(file.size).toBe('0B')
   }
 })
 
-test('flatten', async t => {
+test('flatten', async () => {
   const files = readGlob('src/*.ts')
   const fileArr = await fromAsync(files)
 
-  t.is(fileArr.length, 5)
+  expect(fileArr.length).toBe(5)
 
   fileArr.forEach(file => {
-    t.true(file instanceof File)
-    t.true(file.value instanceof Buffer)
-    t.true(file.data.stat instanceof Object)
-    t.true(file.history instanceof Array)
-    t.true(file.messages instanceof Array)
+    expect(file instanceof File).toBe(true)
+    expect(file.value instanceof Buffer).toBe(true)
+    expect(file.data.stat instanceof Object).toBe(true)
+    expect(file.history instanceof Array).toBe(true)
+    expect(file.messages instanceof Array).toBe(true)
   })
 })
