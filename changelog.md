@@ -1,3 +1,10 @@
+## [1.4.6](https://github.com/bent10/glob-reader/compare/v1.4.5...v1.4.6) (2022-08-14)
+
+
+### Bug Fixes
+
+* disable extenal helpers for built files ([b99091a](https://github.com/bent10/glob-reader/commit/b99091a6c6f3333d4fff27d32117150368d0410b))
+
 ## [1.4.5](https://github.com/bent10/glob-reader/compare/v1.4.4...v1.4.5) (2022-06-23)
 
 
