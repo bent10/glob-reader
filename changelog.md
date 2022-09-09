@@ -1,3 +1,10 @@
+## [1.4.7](https://github.com/bent10/glob-reader/compare/v1.4.6...v1.4.7) (2022-09-09)
+
+
+### Bug Fixes
+
+* **deps:** update dependency vfile to ^5.3.5 ([7c63e43](https://github.com/bent10/glob-reader/commit/7c63e4394be810d973f95b9b76bebd5b092c98aa))
+
 ## [1.4.6](https://github.com/bent10/glob-reader/compare/v1.4.5...v1.4.6) (2022-08-14)
 
 
