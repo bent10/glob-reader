@@ -60,7 +60,7 @@
     "vfile-reporter": "^7.0.4"
   },
   "devDependencies": {
-    "doogu": "^2.4.49",
+    "doogu": "^2.4.53",
     "source-map-js": "^1.0.2"
   },
   "config": {
