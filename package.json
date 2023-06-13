@@ -57,7 +57,7 @@
     "vfile-is": "^2.0.1",
     "vfile-matter": "^4.0.1",
     "vfile-rename": "^2.0.2",
-    "vfile-reporter": "^7.0.5"
+    "vfile-reporter": "^8.0.0"
   },
   "devDependencies": {
     "doogu": "^2.4.136",
