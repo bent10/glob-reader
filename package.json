@@ -55,7 +55,7 @@
     "fast-glob": "^3.2.12",
     "vfile": "^5.3.7",
     "vfile-is": "^2.0.1",
-    "vfile-matter": "^4.0.1",
+    "vfile-matter": "^5.0.0",
     "vfile-rename": "^2.0.2",
     "vfile-reporter": "^7.0.5"
   },
