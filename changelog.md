@@ -1,3 +1,10 @@
+## [1.4.12](https://github.com/bent10/glob-reader/compare/v1.4.11...v1.4.12) (2023-07-22)
+
+
+### Bug Fixes
+
+* **deps:** update dependency fast-glob to ^3.3.1 ([c1f5a5e](https://github.com/bent10/glob-reader/commit/c1f5a5e7dbd79c5375786c63b6beef5eaea53360))
+
 ## [1.4.11](https://github.com/bent10/glob-reader/compare/v1.4.10...v1.4.11) (2023-07-22)
 
 
