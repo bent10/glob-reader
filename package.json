@@ -49,7 +49,7 @@
     "build": "vite build && npm run types",
     "test": "vitest --ui",
     "coverage": "vitest run --coverage",
-    "types": "tsc --project tsconfig.production.json",
+    "types": "tsc --project tsconfig.prod.json",
     "lint": "tsc --noEmit && eslint .",
     "format": "prettier --write ."
   },
