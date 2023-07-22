@@ -1,3 +1,15 @@
+## [1.4.10](https://github.com/bent10/glob-reader/compare/v1.4.9...v1.4.10) (2023-07-22)
+
+
+### Bug Fixes
+
+* **deps:** update dependency fast-glob to ^3.3.0 ([5543f6c](https://github.com/bent10/glob-reader/commit/5543f6c04a414e26f28fa338a7d2b9059488de35))
+* **deps:** update dependency vfile to ^5.3.7 ([101e3eb](https://github.com/bent10/glob-reader/commit/101e3eba1b630ac7966083a92d6571f972f69f3e))
+* **deps:** update dependency vfile-is to ^2.0.1 ([04f592a](https://github.com/bent10/glob-reader/commit/04f592ae4db507bc4a5c1c7bdd18dbe15b3e2cb7))
+* **deps:** update dependency vfile-matter to ^4.0.1 ([5b929cc](https://github.com/bent10/glob-reader/commit/5b929cc22b5e88cd38735ee88cb7c81a4883e18c))
+* **deps:** update dependency vfile-rename to ^2.0.2 ([e68841b](https://github.com/bent10/glob-reader/commit/e68841b40607f92318b80f2ee47b42c988ed3dc0))
+* **deps:** update dependency vfile-reporter to ^7.0.5 ([d6df575](https://github.com/bent10/glob-reader/commit/d6df575712b1cdd2c03c490d7586f03369703bdb))
+
 ## [1.4.9](https://github.com/bent10/glob-reader/compare/v1.4.8...v1.4.9) (2022-11-17)
 
 ### Bug Fixes
