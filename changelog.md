@@ -1,3 +1,10 @@
+## [1.4.11](https://github.com/bent10/glob-reader/compare/v1.4.10...v1.4.11) (2023-07-22)
+
+
+### Bug Fixes
+
+* glob import ([96eaab6](https://github.com/bent10/glob-reader/commit/96eaab65aca4283dcc4a212e67bb7e6545bb0362))
+
 ## [1.4.10](https://github.com/bent10/glob-reader/compare/v1.4.9...v1.4.10) (2023-07-22)
 
 
