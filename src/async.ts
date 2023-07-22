@@ -1,6 +1,6 @@
 import { join } from 'node:path'
 import { promises as fsp } from 'node:fs'
-import { stream as globStream } from 'fast-glob'
+import { default as fastGlob } from 'fast-glob'
 import { File } from './File.js'
 import { Options } from './types.js'
 
@@ -29,7 +29,7 @@ export async function* readGlob(
     cwd = process.cwd(),
     ...globOptions
   } = typeof options === 'string' ? { encoding: options } : options || {}
-  const paths = globStream(patterns, {
+  const paths = fastGlob.stream(patterns, {
     ...globOptions,
     cwd,
     onlyFiles: true
