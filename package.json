@@ -44,23 +44,26 @@
     "license"
   ],
   "scripts": {
-    "start": "npm run build && npm run watch",
-    "watch": "chokidar \"src/*.ts\" -c \"npm run build\"",
-    "lint": "tsc --noEmit && eslint \"./src\" --ext \".ts\" --cache --cache-location \"node_modules/.cache/.eslintcache\"",
-    "build": "swc \"./src\" -d \"dist\" && tsc -d --emitDeclarationOnly",
-    "test": "node --experimental-vm-modules --no-warnings ./node_modules/jest/bin/jest.js --verbose",
-    "coverage": "npm test -- --coverage"
+    "start": "npm run dev",
+    "dev": "npm run types && vite build --emptyOutDir=false --watch",
+    "build": "vite build && npm run types",
+    "test": "vitest --ui",
+    "coverage": "vitest run --coverage",
+    "types": "tsc --project tsconfig.production.json",
+    "lint": "tsc --noEmit && eslint .",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "fast-glob": "^3.3.0",
-    "vfile": "^5.3.7",
-    "vfile-is": "^2.0.1",
-    "vfile-matter": "^4.0.1",
-    "vfile-rename": "^2.0.2",
-    "vfile-reporter": "^7.0.5"
+    "vfile": "^6.0.1",
+    "vfile-is": "^3.0.0",
+    "vfile-matter": "^5.0.0",
+    "vfile-rename": "^3.0.0",
+    "vfile-reporter": "^8.0.0"
   },
   "devDependencies": {
-    "doogu": "^2.4.151",
+    "@swc/core": "^1.3.70",
+    "doogu": "^3.1.6",
     "source-map-js": "^1.0.2"
   },
   "config": {
@@ -69,62 +72,10 @@
     }
   },
   "eslintConfig": {
-    "extends": "./node_modules/doogu/config/eslint.json"
+    "extends": "./node_modules/doogu/eslint"
   },
-  "prettier": "doogu/config/prettier.json",
-  "jest": {
-    "transform": {
-      "^.*.ts$": [
-        "@swc/jest"
-      ]
-    },
-    "extensionsToTreatAsEsm": [
-      ".ts"
-    ],
-    "moduleNameMapper": {
-      "^./utils.js$": "<rootDir>/test/utils.ts"
-    },
-    "watchPathIgnorePatterns": [
-      "<rootDir>/test/fixtures"
-    ],
-    "clearMocks": true,
-    "coverageDirectory": "coverage"
-  },
+  "prettier": "doogu/prettier.json",
   "release": {
-    "branches": [
-      "+([0-9])?(.{+([0-9]),x}).x",
-      "main",
-      "next",
-      "next-major",
-      {
-        "name": "beta",
-        "prerelease": true
-      },
-      {
-        "name": "alpha",
-        "prerelease": true
-      }
-    ],
-    "plugins": [
-      "@semantic-release/commit-analyzer",
-      "@semantic-release/release-notes-generator",
-      [
-        "@semantic-release/changelog",
-        {
-          "changelogFile": "changelog.md"
-        }
-      ],
-      [
-        "@semantic-release/git",
-        {
-          "assets": [
-            "changelog.md"
-          ],
-          "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
-        }
-      ],
-      "@semantic-release/github",
-      "@semantic-release/npm"
-    ]
+    "extends": "doogu/release.config.js"
   }
 }

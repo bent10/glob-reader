@@ -1,9 +1,11 @@
 {
-  "extends": "doogu/config/tsconfig.json",
+  "extends": "@tsconfig/node12/tsconfig.json",
 
   "compilerOptions": {
-    "outDir": "dist"
+    "types": ["vite/client", "vitest/globals"],
+    "declaration": false,
+    "noEmit": false
   },
 
-  "include": ["src"]
+  "include": ["src", "test"]
 }

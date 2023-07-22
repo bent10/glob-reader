@@ -2,7 +2,7 @@ import { normalize, dirname, basename, extname, join } from 'node:path'
 import { URL, fileURLToPath } from 'node:url'
 import { constants, accessSync, readFileSync, promises as fsp } from 'node:fs'
 import { transform, transformSync } from '@swc/core'
-import { File } from '../dist/index.js'
+import { File } from '../src/index.js'
 import { cleanStack, tsCodeMock } from './utils.js'
 
 describe('File options', () => {
@@ -129,7 +129,7 @@ describe('File', () => {
   it('#toString()', () => {
     expect(new File().toString()).toBe('')
     expect(new File(Buffer.from('foo')).toString()).toBe('foo')
-    expect(new File(Buffer.from('foo')).toString('hex')).toBe('666f6f')
+    expect(new File(Buffer.from('foo')).toString('utf8')).toBe('foo')
   })
 
   it('#is()', () => {
@@ -166,9 +166,13 @@ describe('File', () => {
     file.info('some message')
     file.message('some warning!', { line: 2, column: 4 })
 
-    expect(file.reporter({ color: false })).toMatch(
-      /test\/fixtures\/foo.js\n  1:1  info     some message\n  2:4  warning  some warning\!/
-    )
+    expect(file.reporter({ color: false })).toMatchInlineSnapshot(`
+      "test/fixtures/foo.js
+          info    some message
+      2:4 warning some warning!
+
+      2 messages (⚠ 1 warning)"
+    `)
   })
 
   it('#fail()', async () => {
@@ -178,10 +182,9 @@ describe('File', () => {
       file.fail(new ReferenceError('foo is not defined'))
     } catch {}
 
-    expect(cleanStack(file.reporter({ color: false }), 3))
+    expect(cleanStack(file.reporter({ color: false }), 2))
       .toBe(`test/fixtures/foo.js
-  1:1  error  ReferenceError: foo is not defined
-    at Object.<anonymous> (File.test.ts:1:1)`)
+ error ReferenceError: foo is not defined`)
   })
 })
 
@@ -210,7 +213,7 @@ describe('File writes', () => {
       value: tsCodeMock
     })
 
-    const { code, map } = await transform(file.toString(), {
+    const { code, map = '' } = await transform(file.toString(), {
       sourceMaps: true,
       filename: file.basename,
       jsc: {
@@ -221,7 +224,7 @@ describe('File writes', () => {
     })
 
     file.value = `${code}\n//# sourceMappingURL=${file.path}.map\n`
-    file.map = JSON.parse(map!)
+    file.map = JSON.parse(map)
 
     file.rename({ extname: '.js' })
     const minified = await transform(code, {
@@ -236,7 +239,7 @@ describe('File writes', () => {
     })
     file.min = {
       code: `${minified.code}\n//# sourceMappingURL=${file.path}.map\n`,
-      map: JSON.parse(minified.map!)
+      map: JSON.parse(minified.map || '')
     }
 
     // write 'bar.js', 'bar.js.map', 'bar.min.js', 'bar.min.js.map' to './test/fixtures'
@@ -290,7 +293,7 @@ describe('File writes', () => {
       value: tsCodeMock
     })
 
-    const { code, map } = transformSync(file.toString(), {
+    const { code, map = '' } = transformSync(file.toString(), {
       sourceMaps: true,
       filename: file.basename,
       jsc: {
@@ -301,7 +304,7 @@ describe('File writes', () => {
     })
 
     file.value = `${code}\n//# sourceMappingURL=${file.path}.map\n`
-    file.map = JSON.parse(map!)
+    file.map = JSON.parse(map)
 
     file.rename({ extname: '.js' })
     const minified = transformSync(code, {
@@ -316,7 +319,7 @@ describe('File writes', () => {
     })
     file.min = {
       code: `${minified.code}\n//# sourceMappingURL=${file.path}.map\n`,
-      map: JSON.parse(minified.map!)
+      map: JSON.parse(minified.map || '')
     }
 
     // write 'qux.js', 'qux.js.map', 'qux.min.js', 'qux.min.js.map' to './test/fixtures'

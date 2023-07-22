@@ -1,6 +1,6 @@
 import { join } from 'node:path'
 import { readFileSync, statSync } from 'node:fs'
-import fastGlob from 'fast-glob'
+import { sync as globSync } from 'fast-glob'
 import { File } from './File.js'
 import { Options } from './types.js'
 
@@ -27,7 +27,7 @@ export function* readGlobSync(
     cwd = process.cwd(),
     ...globOptions
   } = typeof options === 'string' ? { encoding: options } : options || {}
-  const paths = fastGlob.sync(patterns, {
+  const paths = globSync(patterns, {
     ...globOptions,
     cwd,
     onlyFiles: true

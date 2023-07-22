@@ -3,7 +3,7 @@ import { dirname, extname, basename } from 'node:path'
 import { readFileSync, statSync } from 'node:fs'
 import { Buffer } from 'node:buffer'
 import fastGlob from 'fast-glob'
-import { readGlobSync, File } from '../dist/index.js'
+import { readGlobSync, File } from '../src/index.js'
 import { size } from './utils.js'
 
 const mockPaths = fastGlob.sync('src/*.ts', {
