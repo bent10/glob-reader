@@ -1,11 +1,5 @@
 {
   "extends": "@tsconfig/node12/tsconfig.json",
 
-  "compilerOptions": {
-    "types": ["vite/client", "vitest/globals"],
-    "declaration": false,
-    "noEmit": false
-  },
-
-  "include": ["src", "test"]
+  "include": ["src"]
 }
