@@ -1,3 +1,5 @@
+/// <reference types="vitest/globals" />
+
 import { EOL } from 'node:os'
 import { dirname, extname, basename } from 'node:path'
 import { readFileSync, statSync } from 'node:fs'

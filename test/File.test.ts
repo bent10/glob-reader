@@ -1,3 +1,5 @@
+/// <reference types="vitest/globals" />
+
 import { normalize, dirname, basename, extname, join } from 'node:path'
 import { URL, fileURLToPath } from 'node:url'
 import { constants, accessSync, readFileSync, promises as fsp } from 'node:fs'
