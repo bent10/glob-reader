@@ -1,3 +1,10 @@
+## [1.4.13](https://github.com/bent10/glob-reader/compare/v1.4.12...v1.4.13) (2023-12-19)
+
+
+### Bug Fixes
+
+* **deps:** ncu ([9644b2f](https://github.com/bent10/glob-reader/commit/9644b2f0c07052b9806f7fbd9f8a1611d16c0c35))
+
 ## [1.4.12](https://github.com/bent10/glob-reader/compare/v1.4.11...v1.4.12) (2023-07-22)
 
 
