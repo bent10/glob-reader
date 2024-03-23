@@ -64,7 +64,7 @@
   "devDependencies": {
     "@swc/core": "1.4.8",
     "doogu": "3.2.12",
-    "source-map-js": "1.0.2"
+    "source-map-js": "1.2.0"
   },
   "config": {
     "commitizen": {
